@@ -154,7 +154,7 @@ fi
 
 To access my home lab from anywhere, I use a cheap VPS (512 MB RAM and 5 GB disk) to host a WireGuard server that my home lab is connected to.
 
-![Hmlb](https://github.com/user-attachments/assets/abe9fe12-b31d-4b21-a596-a75c0f6371f3)
+<img width="600" alt="Hmlb" src="https://github.com/user-attachments/assets/614b18d2-c0aa-401a-bcb9-c5dca92ba55b" />
 
 That allows me to connect from my laptop to the VPS from anywhere via WireGuard and access my homelab's web apps and SSH in directly. Also, I have an NGINX web server setup on the VPS to forward any incoming web traffic to the homelab. This allows me to also use my WebApps without needing an authenticated WireGuard client.
 
