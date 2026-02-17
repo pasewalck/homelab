@@ -156,7 +156,7 @@ To access my home lab from anywhere, I use a cheap VPS (512 MB RAM and 5 GB disk
 
 <img width="600" alt="Hmlb" src="https://github.com/user-attachments/assets/614b18d2-c0aa-401a-bcb9-c5dca92ba55b" />
 
-That allows me to connect from my laptop to the VPS from anywhere via WireGuard and access my homelab's web apps and SSH in directly. Also, I have an NGINX web server setup on the VPS to forward any incoming web traffic to the homelab. This allows me to also use my WebApps without needing an authenticated WireGuard client.
+That allows me to connect from my laptop to the VPS from anywhere via WireGuard and access my home lab's web apps and SSH in directly. Also, I have an NGINX web server setup on the VPS to forward any incoming web traffic to the home lab. This allows me to also use my Web Apps without needing an authenticated WireGuard client. Not that I don't use proxy pass as I want to handle TLS/SSL fully on my home lab. 
 
 ```
 stream {
@@ -182,5 +182,4 @@ I worked on a small setup script bundle to improve the setup for this in https:/
 ```
 curl -fsSL https://github.com/pasewalck/homelab-guide/blob/main/vpn-setup/client.js -o ./server.sh && sudo bash ./server.sh
 ```
-
-On my home lab, I simply have NGINX Proxy Manager running. Note that running NGINX Proxy Manager on your VPS with proxy pass would also be a valid option and would make it easier to filter traffic before it ever hits the home lab; however, it prevents you from handling TLS/SSL in the home lab, which improves security if you don't fully trust the VPS.
+On my home lab, I simply have NGINX Proxy Manager running to handle the incoming traffic via the WireGuard tunnel. However, note that running NGINX Proxy Manager on your VPS with proxy pass would also be a very valid option with security benefits. It would make it easier to filter traffic before it ever hits the home lab; however, it prevents you from handling TLS/SSL in the home lab, as I have it set up, which drastically improves security if you don't fully trust the VPS (VPS Provider).
