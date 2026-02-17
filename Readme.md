@@ -177,7 +177,7 @@ stream {
 }
 ```
 
-I worked on a small setup script bundle to improve the setup for this in https://github.com/pasewalck/homelab-guide/vpn-setup/. It should be usable by running the following **on the VPS (WireGuard server)**:
+I worked on a small setup script bundle to improve the setup for this in https://github.com/pasewalck/homelab/tree/main/vpn-setup. It should be usable by running the following **on the VPS (WireGuard server)**:
 
 ```
 curl -fsSL https://github.com/pasewalck/homelab-guide/blob/main/vpn-setup/client.js -o ./server.sh && sudo bash ./server.sh
