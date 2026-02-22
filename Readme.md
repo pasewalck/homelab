@@ -8,7 +8,7 @@ I also got the [Top Board from Radxa](https://docs.radxa.com/en/accessories/stor
 
 I ended up doing some hardware modifications compared to how the HAT is used in my original aspirations mentioned above, which I plan on writing about here in the future.
 
-I use the latest version of Raspberry Pi OS Lite (based on Debian Trixie). Currently, I just use Docker Engine with Docker Compose to manage my services and am very happy with that. But I plan on trying out something like Portainer in the future.
+Furthermore, I use the latest version of Raspberry Pi OS Lite (based on Debian Trixie). Currently, I just use Docker Engine with Docker Compose to manage my services and am very happy with that. But I plan on trying out something like Portainer in the future.
 
 Radxa also provides software managing their Top Board display and fan, which they unfortunately don't seem to maintain any more. But to our luck there are numerous forks and even a [full rewrite in c](https://github.com/kYc0o/radxa-penta-sata-hat-top-board-ctrl-c/tree/main) that are updated. I ended up creating [my own fork](https://github.com/pasewalck/rockpi-penta) from a [fork by Igor Petrov](https://github.com/Pudel-des-Todes/rockpi-penta).
 
@@ -24,9 +24,9 @@ I also use https://github.com/pasewalck/gatekeeper-disks for automatic unlock on
 
 ## RAID Array with Encrpytion
 
-For me it came down to choosing between using ZFS and RAID 1. Due to only having two SSDs at the time of writing this, RAID5 was out of the picture.
+For me, it came down to choosing between using ZFS and RAID 1. Due to only having two SSDs at the time of writing this, RAID5 was out of the picture.
 
-I personally decided to go for classic RAID but am definitely looking forward to try ZFS in the future.
+I personally decided to go for classic RAID but am definitely looking forward to trying ZFS in the future.
 
 I opted for setting up encryption on top of the RAID array, as, from my understanding, this is generally recommended. I don't use a logical file system setup between the encryption and file system layer, due to not seeing any benefits in that for my setup.
 
@@ -60,7 +60,7 @@ Setup mdadm to automatically start on boot:
 ```
 mdadm --detail --scan >> /etc/mdadm/mdadm.conf
 ```
-Setup the encryption:
+Set up the encryption:
 ```
 sudo cryptsetup luksFormat /dev/md0
 ```
