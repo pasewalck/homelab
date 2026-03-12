@@ -1,0 +1,11 @@
+[Unit]
+Description=Open ports for a short time after boot
+After=network.target
+
+[Service]
+ExecStart=/bin/open-ports-temp
+Type=oneshot
+RemainAfterExit=true
+
+[Install]
+WantedBy=multi-user.target
