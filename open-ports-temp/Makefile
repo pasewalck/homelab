@@ -2,8 +2,8 @@ MAIN_SCRIPT = ./open-ports-temp.sh
 CONFIG_FILE = ./open-ports-temp.conf
 SERVICE = ./open-ports-temp.service
 
-MAIN_SCRIPT_TARGET = /etc/open-ports-temp.conf
-CONFIG_FILE_TARGET = /bin/open-ports-temp
+MAIN_SCRIPT_TARGET = /bin/open-ports-temp
+CONFIG_FILE_TARGET = /etc/open-ports-temp.conf
 SERVICE_TARGET = /etc/systemd/system/open-ports-temp.service
 
 all: install
