@@ -1,0 +1,11 @@
+# /etc/systemd/system/scheduled-tasks-daily.timer
+[Unit]
+Description=Daily scheduled tasks
+
+[Timer]
+OnCalendar=daily
+RandomizedDelaySec=1h
+Persistent=true
+
+[Install]
+WantedBy=timers.target

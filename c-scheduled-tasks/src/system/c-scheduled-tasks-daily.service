@@ -1,0 +1,10 @@
+# /etc/systemd/system/c-scheduled-tasks-daily.service
+
+[Unit]
+Description=Daily scheduled tasks
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/c-scheduled-tasks-run
