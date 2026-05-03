@@ -18,7 +18,11 @@ while IFS= read -r -d '' file; do
     if [ ${PIPESTATUS[0]} -ne 0 ]; then
         echo "[$name] exited with error" >>"$LOG_FILE"
         EXIT_CODE=1
+    else
+        echo "[$name] completed!" >>"$LOG_FILE"
     fi
+
+
 done < <(find -L "$ACTIVE_DIR" -mindepth 1 -maxdepth 1 -type f -executable -print0)
 
 exit $EXIT_CODE
