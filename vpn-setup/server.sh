@@ -138,7 +138,7 @@ read -p "Setup ufw? (Y/n) (Default: Y): " SETUP_UFW
 
 SETUP_UFW=${SETUP_UFW:-y}
 
-if [[$SETUP_UFW == "y" || $SETUP_UFW == "Y"]]
+if [[$SETUP_UFW == "y" || $SETUP_UFW == "Y"]]; then
     sudo apt install -y ufw
 
     sudo ufw allow $SERVER_PORT/udp
@@ -150,7 +150,7 @@ read -p "Setup IP forwarding? (Y/n) (Default: Y): " SETUP_IP_FORWARD
 
 SETUP_UFW=${SETUP_UFW:-y}
 
-if [[$SETUP_IP_FORWARD == "y" || $SETUP_IP_FORWARD == "Y"]]
+if [[$SETUP_IP_FORWARD == "y" || $SETUP_IP_FORWARD == "Y"]]; then
 
     sudo sysctl -w net.ipv4.ip_forward=1
     if grep -q "^net.ipv4.ip_forward" $SYSCTL_CONF; then
