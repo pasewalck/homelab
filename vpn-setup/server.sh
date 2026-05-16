@@ -62,122 +62,166 @@ increment_ip() {
 read -p "Enter WireGuard interface (default: wg0): " WG_INTERFACE
 WG_INTERFACE=${WG_INTERFACE:-wg0}
 
-while true; do
-    read -p "Enter your server IP: " SERVER_IP
-    if [[ -z "$SERVER_IP" ]]; then
-        print "${RED}Error: Server IP cannot be empty. Please provide a valid IP."
-    elif ! validate_ip "$SERVER_IP"; then
-        print "${RED}Error: Invalid IP address format."
-    else
-        break
+WG_CONF="/etc/wireguard/${WG_INTERFACE}.conf"
+SYSCTL_CONF="/etc/sysctl.conf"
+
+if [[ -f "$WG_CONF" ]]; then
+    print "${GREEN}Existing WireGuard config found at $WG_CONF${NC}"
+
+    if wg show "$WG_INTERFACE" &>/dev/null; then
+        print "${YELLOW}Interface $WG_INTERFACE is up, taking it down...${NC}"
+        sudo wg-quick down "$WG_INTERFACE"
     fi
-done
 
-read -p "Enter the server port (default: 51820): " SERVER_PORT
-SERVER_PORT=${SERVER_PORT:-51820}
+    print "${NC}Parsing existing configuration...${NC}"
 
-SERVER_ENDPOINT="$SERVER_IP:$SERVER_PORT"
+    SERVER_PORT=$(grep -oP 'ListenPort\s*=\s*\K\d+' "$WG_CONF")
+    SERVER_PRIV=$(grep -oP 'PrivateKey\s*=\s*\K\S+' "$WG_CONF")
+    SERVER_PUB=$(echo "$SERVER_PRIV" | wg pubkey)
+    PSK=$(grep -oP 'PresharedKey\s*=\s*\K\S+' "$WG_CONF" | head -1)
+    ADDRESS=$(grep -oP 'Address\s*=\s*\K\S+' "$WG_CONF")
 
-print "${NC}Choose your IP range for ALLOWED_IPS:"
-print "${NC}1. 10.200.200.0/24 (default)"
-print "${NC}2. 10.0.0.0/24"
-print "${NC}3. Custom (enter your own)"
+    IP_RANGE_BASE="${ADDRESS%/*}"
+    SUBNET_MASK="${ADDRESS#*/}"
+    IP_RANGE=$(increment_ip "$IP_RANGE_BASE" -1)
+    ALLOWED_IPS="$IP_RANGE/$SUBNET_MASK"
 
-read -p "Select an option [1-4]: " IP_RANGE_OPTION
+    counter=0
+    declare -A CLIENT_IPS
+    while IFS= read -r line; do
+        if [[ "$line" =~ AllowedIPs\s*=\s*(.+) ]]; then
+            CLIENT_IPS[$counter]="${BASH_REMATCH[1]}"
+            ((counter++))
+        fi
+    done < <(grep 'AllowedIPs' "$WG_CONF")
 
-case $IP_RANGE_OPTION in
-  1)
-    IP_RANGE="10.200.200.0"
-    SUBNET_MASK="24"
-    ;;
-  2)
-    IP_RANGE="10.0.0.0"
-    SUBNET_MASK="24"
-    ;;
-  3)
     while true; do
-        read -p "Enter the custom IP range (e.g., 10.0.0.0): " IP_RANGE
-        if [[ -z "$IP_RANGE" ]]; then
-            print "${RED}Error: IP range cannot be empty."
-        elif ! validate_ip "$IP_RANGE"; then
+        read -p "Enter your server public IP (for client config): " SERVER_IP
+        if [[ -z "$SERVER_IP" ]]; then
+            print "${RED}Error: Server IP cannot be empty."
+        elif ! validate_ip "$SERVER_IP"; then
             print "${RED}Error: Invalid IP address format."
         else
             break
         fi
     done
 
+    SERVER_ENDPOINT="$SERVER_IP:$SERVER_PORT"
+else
     while true; do
-        read -p "Enter the subnet mask (e.g., 24, 16): " SUBNET_MASK
-        if [[ -z "$SUBNET_MASK" ]]; then
-            print "${RED}Error: Subnet mask cannot be empty."
-        elif ! validate_mask "$SUBNET_MASK"; then
-            print "${RED}Error: Invalid subnet mask format."
+        read -p "Enter your server IP: " SERVER_IP
+        if [[ -z "$SERVER_IP" ]]; then
+            print "${RED}Error: Server IP cannot be empty. Please provide a valid IP."
+        elif ! validate_ip "$SERVER_IP"; then
+            print "${RED}Error: Invalid IP address format."
         else
             break
         fi
     done
 
-    ;;
-  *)
-    print "${YELLOW}Invalid option. Defaulting to 10.200.200.0/24"
-    IP_RANGE="10.200.200.0"
-    SUBNET_MASK="24"
-    ;;
-esac
+    read -p "Enter the server port (default: 51820): " SERVER_PORT
+    SERVER_PORT=${SERVER_PORT:-51820}
 
-ALLOWED_IPS="$IP_RANGE/$SUBNET_MASK"
+    SERVER_ENDPOINT="$SERVER_IP:$SERVER_PORT"
 
-print "${NC}Using network: $ALLOWED_IPS"
+    print "${NC}Choose your IP range for ALLOWED_IPS:"
+    print "${NC}1. 10.200.200.0/24 (default)"
+    print "${NC}2. 10.0.0.0/24"
+    print "${NC}3. Custom (enter your own)"
 
-SYSCTL_CONF="/etc/sysctl.conf"
-WG_CONF="/etc/wireguard/${WG_INTERFACE}.conf"
+    read -p "Select an option [1-4]: " IP_RANGE_OPTION
 
-sudo apt update && sudo apt install -y wireguard
+    case $IP_RANGE_OPTION in
+      1)
+        IP_RANGE="10.200.200.0"
+        SUBNET_MASK="24"
+        ;;
+      2)
+        IP_RANGE="10.0.0.0"
+        SUBNET_MASK="24"
+        ;;
+      3)
+        while true; do
+            read -p "Enter the custom IP range (e.g., 10.0.0.0): " IP_RANGE
+            if [[ -z "$IP_RANGE" ]]; then
+                print "${RED}Error: IP range cannot be empty."
+            elif ! validate_ip "$IP_RANGE"; then
+                print "${RED}Error: Invalid IP address format."
+            else
+                break
+            fi
+        done
 
-read -p "Setup ufw? (Y/n) (Default: Y): " SETUP_UFW
+        while true; do
+            read -p "Enter the subnet mask (e.g., 24, 16): " SUBNET_MASK
+            if [[ -z "$SUBNET_MASK" ]]; then
+                print "${RED}Error: Subnet mask cannot be empty."
+            elif ! validate_mask "$SUBNET_MASK"; then
+                print "${RED}Error: Invalid subnet mask format."
+            else
+                break
+            fi
+        done
 
-SETUP_IP_FORWARD=${SETUP_IP_FORWARD:-y}
+        ;;
+      *)
+        print "${YELLOW}Invalid option. Defaulting to 10.200.200.0/24"
+        IP_RANGE="10.200.200.0"
+        SUBNET_MASK="24"
+        ;;
+    esac
 
-if [[ $SETUP_UFW =~ ^[Yy]$ ]]; then
+    ALLOWED_IPS="$IP_RANGE/$SUBNET_MASK"
 
-    sudo apt install -y ufw
+    print "${NC}Using network: $ALLOWED_IPS"
 
-    sudo ufw allow $SERVER_PORT/udp
-    sudo ufw reload
-    sudo ufw enable
-fi
+    sudo apt update && sudo apt install -y wireguard
 
-read -p "Setup IP forwarding? (Y/n) (Default: Y): " SETUP_IP_FORWARD
+    read -p "Setup ufw? (Y/n) (Default: Y): " SETUP_UFW
 
-SETUP_IP_FORWARD=${SETUP_IP_FORWARD:-y}
+    SETUP_UFW=${SETUP_UFW:-y}
 
-if [[ $SETUP_IP_FORWARD =~ ^[Yy]$ ]]; then
+    if [[ $SETUP_UFW =~ ^[Yy]$ ]]; then
 
-    sudo sysctl -w net.ipv4.ip_forward=1
-    if grep -q "^net.ipv4.ip_forward" $SYSCTL_CONF; then
-        sudo sed -i "s/^net.ipv4.ip_forward.*/net.ipv4.ip_forward=1/" $SYSCTL_CONF
-    else
-        echo "net.ipv4.ip_forward=1" | sudo tee -a $SYSCTL_CONF
+        sudo apt install -y ufw
+
+        sudo ufw allow $SERVER_PORT/udp
+        sudo ufw reload
+        sudo ufw enable
     fi
 
-    sudo sysctl -p
+    read -p "Setup IP forwarding? (Y/n) (Default: Y): " SETUP_IP_FORWARD
 
-fi
+    SETUP_IP_FORWARD=${SETUP_IP_FORWARD:-y}
 
-SERVER_PRIV=$(wg genkey)
-SERVER_PUB=$(echo "$SERVER_PRIV" | wg pubkey)
-PSK=$(wg genpsk)
+    if [[ $SETUP_IP_FORWARD =~ ^[Yy]$ ]]; then
+
+        sudo sysctl -w net.ipv4.ip_forward=1
+        if grep -q "^net.ipv4.ip_forward" $SYSCTL_CONF; then
+            sudo sed -i "s/^net.ipv4.ip_forward.*/net.ipv4.ip_forward=1/" $SYSCTL_CONF
+        else
+            echo "net.ipv4.ip_forward=1" | sudo tee -a $SYSCTL_CONF
+        fi
+
+        sudo sysctl -p
+
+    fi
+
+    SERVER_PRIV=$(wg genkey)
+    SERVER_PUB=$(echo "$SERVER_PRIV" | wg pubkey)
+    PSK=$(wg genpsk)
 
 
-sudo cat > "$WG_CONF" <<EOF
+    sudo cat > "$WG_CONF" <<EOF
 [Interface]
 Address = $(increment_ip $IP_RANGE 1)/24
 ListenPort = $SERVER_PORT
 PrivateKey = $SERVER_PRIV
 EOF
 
-counter=0
-declare -A CLIENT_IPS
+    counter=0
+    declare -A CLIENT_IPS
+fi
 
 while true; do
     read -p "Add a client? (y/n): " add_client
