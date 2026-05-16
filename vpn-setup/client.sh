@@ -73,7 +73,7 @@ WG_CONF="/etc/wireguard/${WG_INTERFACE}.conf"
 sudo cat > "$WG_CONF" <<EOF
 [Interface]
 Address = $CLIENT_IP
-PrivateKey = $CLIENT_PRV
+PrivateKey = $CLIENT_PRIV
 
 [Peer]
 PublicKey = $SERVER_PUB
