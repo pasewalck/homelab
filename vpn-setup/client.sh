@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-sudo apt install wireguard
+sudo apt install -y wireguard
 
 GREEN='\033[0;32m'
 RED='\033[0;31m'
