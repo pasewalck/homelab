@@ -68,7 +68,7 @@ fi
 NG_CONF="./nginx.conf"
 
 
-BACKUP_BACKUP="${FILE}.bak"
+BACKUP_BACKUP="${NG_CONF}.bak"
 
 cp "$NG_CONF" "$BACKUP_BACKUP"
 
