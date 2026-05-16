@@ -146,6 +146,23 @@ if [[$SETUP_UFW == "y" || $SETUP_UFW == "Y"]]
     sudo ufw enable
 fi
 
+read -p "Setup IP forwarding? (Y/n) (Default: Y): " SETUP_IP_FORWARD
+
+SETUP_UFW=${SETUP_UFW:-y}
+
+if [[$SETUP_IP_FORWARD == "y" || $SETUP_IP_FORWARD == "Y"]]
+
+    sudo sysctl -w net.ipv4.ip_forward=1
+    if grep -q "^net.ipv4.ip_forward" $SYSCTL_CONF; then
+        sudo sed -i "s/^net.ipv4.ip_forward.*/net.ipv4.ip_forward=1/" $SYSCTL_CONF
+    else
+        echo "net.ipv4.ip_forward=1" | sudo tee -a $SYSCTL_CONF
+    fi
+
+    sudo sysctl -p
+
+fi
+
 SERVER_PRIV=$(wg genkey)
 SERVER_PUB=$(echo "$SERVER_PRIV" | wg pubkey)
 PSK=$(wg genpsk)
