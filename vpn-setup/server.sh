@@ -198,7 +198,7 @@ EOF
         CLIENT_IPS[$counter]="$client_ip_addr"
 
         print "${YELLOW}Important. Setup your client!"
-        print "${NC}curl -fsSL https://github.com/pasewalck/homelab-guide/blob/main/vpn-setup/client.js -o ./client.sh && sudo bash ./client.sh --client-priv $client_priv --psk $PSK --client-ip $client_ip_addr --server-endpoint $SERVER_IP --server-pub $SERVER_PUB --allowed-ips $ALLOWED_IPS --wg-interface $WG_INTERFACE"
+        print "${NC}curl -fsSL https://raw.githubusercontent.com/pasewalck/homelab/refs/heads/main/vpn-setup/client.sh -o ./client.sh && sudo bash ./client.sh --client-priv $client_priv --psk $PSK --client-ip $client_ip_addr --server-endpoint $SERVER_IP --server-pub $SERVER_PUB --allowed-ips $ALLOWED_IPS --wg-interface $WG_INTERFACE"
         print "${NC}"
 
         ((counter++))
