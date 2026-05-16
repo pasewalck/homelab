@@ -132,20 +132,19 @@ print "${NC}Using network: $ALLOWED_IPS"
 SYSCTL_CONF="/etc/sysctl.conf"
 WG_CONF="/etc/wireguard/${WG_INTERFACE}.conf"
 
-sudo apt update && sudo apt install -y wireguard ufw
+sudo apt update && sudo apt install -y wireguard
 
-sudo ufw allow $SERVER_PORT/udp
-sudo ufw reload
-sudo ufw enable
+read -p "Setup ufw? (Y/n) (Default: Y): " SETUP_UFW
 
-sudo sysctl -w net.ipv4.ip_forward=1
-if grep -q "^net.ipv4.ip_forward" $SYSCTL_CONF; then
-    sudo sed -i "s/^net.ipv4.ip_forward.*/net.ipv4.ip_forward=1/" $SYSCTL_CONF
-else
-    echo "net.ipv4.ip_forward=1" | sudo tee -a $SYSCTL_CONF
+SETUP_UFW=${SETUP_UFW:-y}
+
+if [[$SETUP_UFW == "y" || $SETUP_UFW == "Y"]]
+    sudo apt install -y ufw
+
+    sudo ufw allow $SERVER_PORT/udp
+    sudo ufw reload
+    sudo ufw enable
 fi
-
-sudo sysctl -p
 
 SERVER_PRIV=$(wg genkey)
 SERVER_PUB=$(echo "$SERVER_PRIV" | wg pubkey)
