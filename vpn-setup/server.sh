@@ -43,10 +43,10 @@ increment_ip() {
     # Using Workaround by kapa2512 from https://github.com/jeff-hykin/better-shell-syntax/issues/93
     # Instead of i=$(( 1 << 2 )) using i=$(( ((0) | 1 << 2) )) to avoid vs code formatting issues.
 
-    local part1=$(( ((0) | a << 24) ))
-    local part2=$(( ((0) | b << 16) ))
-    local part3=$(( ((0) | c << 8) ))
-    local part4=$(( ((0) | d << 0) ))
+    local part1=$(( ((0) | octet1 << 24) ))
+    local part2=$(( ((0) | octet2 << 16) ))
+    local part3=$(( ((0) | octet3 << 8) ))
+    local part4=$(( ((0) | octet4 << 0) ))
 
     local total_ip_num=$((part1+part2+part3+part4+offset))
 
@@ -136,7 +136,7 @@ sudo apt update && sudo apt install -y wireguard
 
 read -p "Setup ufw? (Y/n) (Default: Y): " SETUP_UFW
 
-SETUP_UFW=${SETUP_UFW:-y}
+SETUP_IP_FORWARD=${SETUP_IP_FORWARD:-y}
 
 if [[ $SETUP_UFW =~ ^[Yy]$ ]]; then
 
@@ -149,7 +149,7 @@ fi
 
 read -p "Setup IP forwarding? (Y/n) (Default: Y): " SETUP_IP_FORWARD
 
-SETUP_UFW=${SETUP_UFW:-y}
+SETUP_IP_FORWARD=${SETUP_IP_FORWARD:-y}
 
 if [[ $SETUP_IP_FORWARD =~ ^[Yy]$ ]]; then
 
@@ -185,7 +185,7 @@ while true; do
         client_priv=$(wg genkey)
         client_pub=$(echo "$client_priv" | wg pubkey)
 
-        client_ip_addr="$(increment_ip $IP_RANGE $counter+2)/32"
+        client_ip_addr="$(increment_ip $IP_RANGE $((counter + 2)))/32"
 
         sudo tee -a "$WG_CONF" > /dev/null <<EOF
 [Peer]
@@ -229,15 +229,17 @@ while true; do
             if [[ -z "${CLIENT_IPS[$CLIENT_ID]}" ]]; then
                 print "${RED}Error: Invalid client ID selected."
             else
-                continue
+                break
             fi
         done
 
         client_ip="${CLIENT_IPS[$CLIENT_ID]}"
 
-        curl -fsSL https://github.com/pasewalck/homelab-guide/blob/main/vpn-setup/nginx-stream.js -o ./nginx-stream.sh
+        curl -fsSL https://raw.githubusercontent.com/pasewalck/homelab/refs/heads/main/vpn-setup/nginx-stream.sh -o ./nginx-stream.sh
         sudo bash ./nginx-stream.sh --target-endpoint "$client_ip:80" --target-endpoint-secure "$client_ip:443"
-    elif [[ "$add_client" == "n" ]]; then
+    elif [[ "$nginx_setup" == "n" ]]; then
+        break
+    else
         break
     fi
 done
