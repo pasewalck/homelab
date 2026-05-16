@@ -35,7 +35,7 @@ validate_mask() {
     return 1
 }
 
-ip_to_integer() {
+increment_ip() {
     local ip="$1"
     local offset="$2"
     IFS='.' read -r octet1 octet2 octet3 octet4 <<< "$ip"
