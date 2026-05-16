@@ -96,10 +96,10 @@ sudo tee -a "$NG_CONF" > /dev/null <<EOF
 
 stream {
     upstream backend {
-        server TARGET_ENDPOINT_HTTP;
+        server $TARGET_ENDPOINT_HTTP;
     }
     server {
-        listen $LISTEN_PORT;
+        listen $LISTEN_PORT_HTTP;
         proxy_pass backend;
     }
     upstream backend_https {
