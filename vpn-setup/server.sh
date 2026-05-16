@@ -96,10 +96,10 @@ case $IP_RANGE_OPTION in
     ;;
   3)
     while true; do
-        read -p "Enter the custom IP range (e.g., 10.0.0.0): " CUSTOM_IP
-        if [[ -z "$CUSTOM_IP" ]]; then
+        read -p "Enter the custom IP range (e.g., 10.0.0.0): " IP_RANGE
+        if [[ -z "$IP_RANGE" ]]; then
             print "${RED}Error: IP range cannot be empty."
-        elif ! validate_ip "$CUSTOM_IP"; then
+        elif ! validate_ip "$IP_RANGE"; then
             print "${RED}Error: Invalid IP address format."
         else
             break
@@ -107,10 +107,10 @@ case $IP_RANGE_OPTION in
     done
 
     while true; do
-        read -p "Enter the subnet mask (e.g., 24, 16): " CUSTOM_MASK
-        if [[ -z "$CUSTOM_MASK" ]]; then
+        read -p "Enter the subnet mask (e.g., 24, 16): " SUBNET_MASK
+        if [[ -z "$SUBNET_MASK" ]]; then
             print "${RED}Error: Subnet mask cannot be empty."
-        elif ! validate_mask "$CUSTOM_MASK"; then
+        elif ! validate_mask "$SUBNET_MASK"; then
             print "${RED}Error: Invalid subnet mask format."
         else
             break
