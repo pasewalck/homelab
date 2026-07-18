@@ -1,4 +1,5 @@
 #!/bin/bash
+# Please install jq to make this script work! Run "sudo apt install jq"
 
 SERVICES=/some/path/services/
 
@@ -11,6 +12,8 @@ find "$SERVICES" -name "docker-compose.yaml" -o -name "docker-compose.yml" 2>/de
                 if echo "$output" | grep -q "Downloaded newer image"; then
                         echo "New image(s) pulled for $dir"
                         docker compose up -d --remove-orphans
+                else
+                        echo "$dir is up to date!"
                 fi
         fi
 done
