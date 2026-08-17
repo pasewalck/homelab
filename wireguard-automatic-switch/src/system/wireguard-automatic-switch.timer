@@ -1,0 +1,14 @@
+[Unit]
+Description=Check WireGuard config every 30 seconds
+Requires=wireguard-automatic-switch.service
+
+[Timer]
+# Run every 30 seconds
+OnCalendar=*:*:0/30
+# Run immediately on boot (after network is online)
+OnBootSec=10
+# If the previous run is still in progress, skip this one
+Unit=wireguard-automatic-switch.service
+
+[Install]
+WantedBy=timers.target

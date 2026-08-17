@@ -1,0 +1,17 @@
+[Unit]
+Description=Auto-switch WireGuard config based on network presence
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/wireguard-automatic-switch
+StandardOutput=journal
+StandardError=journal
+User=root
+# Run with high priority to avoid missing network changes
+Nice=-10
+# Prevent systemd from killing the service if it takes too long
+TimeoutStartSec=30
+# Ensure lock file is cleaned
+ExecStartPre=/usr/bin/flock /var/run/wireguard-automatic-switch.lock true
