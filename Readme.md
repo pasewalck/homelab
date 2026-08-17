@@ -183,3 +183,8 @@ I worked on a small setup script bundle to improve the setup for this in https:/
 curl -fsSL https://raw.githubusercontent.com/pasewalck/homelab/refs/heads/main/vpn-setup/client.sh -o ./server.sh && sudo bash ./server.sh
 ```
 On my home lab, I simply have NGINX Proxy Manager running to handle the incoming traffic via the WireGuard tunnel. However, note that running NGINX Proxy Manager on your VPS with proxy pass would also be a very valid option with security benefits. It would make it easier to filter traffic before it ever hits the home lab; however, it prevents you from handling TLS/SSL in the home lab, as I have it set up, which drastically improves security if you don't fully trust the VPS (VPS Provider).
+
+## Stats via Beszel
+
+I use and recommend Beszel for monitoring your homelab. For me, I had to apply this [fix](https://akashrajpurohit.com/blog/resolving-missing-memory-stats-in-docker-stats-on-raspberry-pi/) posted by Akash Rajpurohit to get my homelab to show Docker stats. 
+
